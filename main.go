@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
 	"log"
 	"time"
 
+	"github.com/ishanmadhav/aetherq/pkg/partition"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
@@ -18,22 +18,26 @@ func main() {
 	}
 	defer cli.Close()
 
-	// Use the client
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	_, err = cli.Put(ctx, "mykey", "myvalue")
-	cancel()
+	p1, err := partition.NewPartition("test", 0, "localhost:8080", cli)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = partition.NewPartition("test", 0, "localhost:8081", cli)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = partition.NewPartition("test", 0, "localhost:8082", cli)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Get the value
-	ctx, cancel = context.WithTimeout(context.Background(), time.Second)
-	resp, err := cli.Get(ctx, "mykey")
-	cancel()
+	p1.SetPartitionCoordinationData()
+	// p2.SetPartitionCoordinationData()
+	// p3.SetPartitionCoordinationData()
+	out, err := p1.GetPartitionCoordinationData()
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, ev := range resp.Kvs {
-		log.Printf("%s : %s\n", ev.Key, ev.Value)
-	}
+	log.Println(out)
+
 }

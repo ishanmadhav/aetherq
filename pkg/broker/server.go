@@ -10,7 +10,7 @@ import (
 
 func (b *Broker) StartServer() {
 	b.setupRoutes()
-	b.server.Listen(":3000")
+	b.server.Listen(b.brokerURI)
 }
 
 func (b *Broker) setupRoutes() {
@@ -41,6 +41,7 @@ func (b *Broker) createTopicController(c *fiber.Ctx) error {
 	if err != nil {
 		return c.JSON(err)
 	}
+	b.AppendTopicLoop()
 	var resp struct {
 		Message string `json:"message"`
 	}
@@ -76,5 +77,6 @@ func (b *Broker) produceController(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(err)
 	}
+	b.AppendEntriesLoop(msg)
 	return c.JSON("produce")
 }

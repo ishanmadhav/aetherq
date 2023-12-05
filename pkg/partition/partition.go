@@ -6,6 +6,7 @@ import (
 
 	"github.com/ishanmadhav/aetherq/api"
 	"github.com/ishanmadhav/aetherq/pkg/storage"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 // Partition is a partition of a topic.
@@ -20,14 +21,16 @@ type Partition struct {
 	TopicName       string
 	PartitionNumber int
 	CommitLog       *storage.CommitLog
+	etcdClient      *clientv3.Client
 }
 
-func NewPartition(topicName string, partitionNumber int) (*Partition, error) {
+func NewPartition(topicName string, partitionNumber int, brokerURI string, etcdClient *clientv3.Client) (*Partition, error) {
 	commitLog := storage.NewCommitLog()
 	return &Partition{
 		CommitLog:       commitLog,
 		TopicName:       topicName,
 		PartitionNumber: partitionNumber,
+		etcdClient:      etcdClient,
 	}, nil
 }
 

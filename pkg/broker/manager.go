@@ -10,7 +10,7 @@ import (
 
 // CreateTopic creates a new topic
 func (b *Broker) CreateTopic(name string, replicationFactor int, partitionCount int) error {
-	topic := topic.NewTopic(name, replicationFactor, partitionCount)
+	topic := topic.NewTopic(name, replicationFactor, partitionCount, "localhost:"+b.brokerURI, b.etcdClient)
 	b.Topics = append(b.Topics, &topic)
 	return nil
 }
